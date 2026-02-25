@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Эмоциональный диссонанс — тренажер</title>
+  <style>
+    :root {
+      --bg: #050816;
+      --panel: #0b1022;
+      --card: #11182d;
+      --stroke: #1f2937;
+      --accent: #ff9ec7;
+      --accent-2: #ff5f8d;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --positive: #7cf3c4;
+      --negative: #ff8fb1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(124, 92, 255, 0.12), transparent 55%),
+        radial-gradient(circle at 80% 8%, rgba(255, 107, 155, 0.16), transparent 50%),
+        var(--bg);
+      opacity: 0;
+      transition: opacity 320ms ease;
+    }
+    body.loaded { opacity: 1; }
+    body.fade-out { opacity: 0; }
+    a { color: inherit; text-decoration: none; }
+    .shell {
+      width: min(1180px, 100% - 32px);
+      margin: 0 auto;
+      padding: 20px 0 40px;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(120deg, rgba(255, 107, 155, 0.12), rgba(124, 92, 255, 0.12));
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 14px 18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(10px);
+      z-index: 5;
+    }
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo__mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #f97316, #ec4899 45%, #6366f1 100%);
+      box-shadow: 0 0 26px rgba(236, 72, 153, 0.65);
+    }
+    nav { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    nav a, .nav-btn {
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease, color 0.2s ease;
+      background: transparent;
+      cursor: pointer;
+    }
+    nav a:hover, .nav-btn:hover {
+      color: var(--text);
+      border-color: rgba(255, 107, 155, 0.5);
+      background: rgba(255, 107, 155, 0.06);
+    }
+    [hidden] { display: none !important; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    }
+    .modes {
+      display: grid;
+      gap: 12px;
+    }
+    .hero {
+      text-align: center;
+      padding: 12px 8px 6px;
+      display: grid;
+      gap: 6px;
+    }
+    .hero h1 { margin: 0; font-size: 28px; letter-spacing: 0.02em; }
+    .hero p { margin: 0; color: var(--muted); }
+    .mode-sections { display: grid; gap: 12px; }
+    .mode-section {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .mode-section__head {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .mode-section__icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #0b1022;
+      font-weight: 700;
+    }
+    .mode-section__title { margin: 0; font-size: 18px; }
+    .mode-section__desc { margin: 0; color: var(--muted); font-size: 13px; }
+    .mode-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .mode-card {
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--text);
+      text-align: left;
+      display: grid;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+      box-shadow: 0 12px 34px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+      flex: 1 1 calc(33.333% - 8px);
+      min-width: 240px;
+    }
+    .mode-card__icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #0b1022;
+      font-size: 18px;
+    }
+    .mode-card:hover { border-color: rgba(255,158,199,0.5); transform: translateY(-2px); }
+    .mode-card.active {
+      border-color: rgba(255,158,199,0.8);
+      box-shadow: 0 16px 44px rgba(255,95,141,0.35);
+    }
+    .mode-card__title { margin: 0; font-size: 16px; }
+    .mode-card__desc { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .mode-card__meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 158, 199, 0.14);
+      color: var(--text);
+      border: 1px solid rgba(255,158,199,0.35);
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .actions { display: flex; gap: 10px; }
+    .stage-actions { display: flex; gap: 10px; margin-bottom: 8px; }
+    button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      color: #0b1022;
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 32px rgba(255, 95, 141, 0.4);
+      transition: transform 0.1s ease, filter 0.15s ease;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      box-shadow: none;
+    }
+    button:active { transform: translateY(1px); filter: brightness(0.95); }
+    .instructions {
+      background: var(--card);
+      border: 1px dashed var(--stroke);
+      border-radius: 14px;
+      padding: 12px;
+      color: #e5e7eb;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .instr-header { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .instr-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #0b1022;
+    }
+    .instr-title { font-weight: 700; font-size: 15px; color: var(--text); }
+    .instr-sub { color: var(--muted); font-size: 13px; }
+    .step-list { display: grid; gap: 8px; }
+    .step { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; color: var(--text); }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .instr-meta { margin-top: 10px; font-size: 12px; color: var(--muted); }
+    .stage {
+      display: grid;
+      gap: 12px;
+    }
+    .arena {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      min-height: 340px;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      padding-bottom: 110px;
+      overflow: hidden;
+    }
+    .progress {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      display: grid;
+      gap: 6px;
+    }
+    .progress-bottom { bottom: 14px; }
+    .progress-above-response { bottom: 76px; }
+    .progress__label { font-size: 12px; color: var(--muted); }
+    .progress__track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      border: 1px solid var(--stroke);
+    }
+    .progress__fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: inherit;
+      transition: width 0.2s ease;
+    }
+    .stimulus {
+      text-align: center;
+      animation: fadeIn 0.25s ease;
+    }
+    .visual {
+      font-size: 82px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 0 16px 40px rgba(0,0,0,0.45);
+    }
+    .tag {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .message {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--stroke);
+      font-size: 13px;
+      color: var(--muted);
+      backdrop-filter: blur(6px);
+    }
+    .message.success { color: var(--positive); border-color: rgba(124,243,196,0.5); }
+    .message.error { color: var(--negative); border-color: rgba(255,143,177,0.5); }
+    .response-bar {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      gap: 10px;
+      display: flex;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    body.test-running .response-bar {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .response-bar button {
+      flex: 1;
+      color: #0b1022;
+    }
+    .stats {
+      display: grid;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.08));
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .stats__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .stats__title { margin: 0; font-size: 18px; letter-spacing: 0.02em; }
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 158, 199, 0.14);
+      color: var(--text);
+      font-size: 12px;
+      border: 1px solid rgba(255, 158, 199, 0.35);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .stat-card {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: var(--card);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+      display: grid;
+      gap: 8px;
+    }
+    .stat-card__label { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .stat-card__value { font-size: 26px; font-weight: 800; color: var(--text); }
+    .stat-card__note { color: var(--muted); font-size: 13px; }
+    .stat-card--accent { background: linear-gradient(135deg, rgba(255,158,199,0.12), rgba(255,95,141,0.12)); }
+    .stat-card--cool { background: linear-gradient(135deg, rgba(124,92,255,0.12), rgba(34,211,238,0.08)); }
+    .stat-card--warm { background: linear-gradient(135deg, rgba(255,143,177,0.12), rgba(255,158,199,0.08)); }
+    .trend {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.24);
+    }
+    .trend__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .trend__title { margin: 0; font-size: 15px; letter-spacing: 0.02em; }
+    .trend__note { color: var(--muted); font-size: 12px; }
+    .trend__bars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 10px;
+      align-items: end;
+      height: 140px;
+    }
+    .trend__bar {
+      width: 100%;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #7c5cff, #ff5f8d);
+      box-shadow: 0 10px 26px rgba(255, 95, 141, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .trend__bar::after {
+      content: attr(data-label);
+      position: absolute;
+      inset: auto 10px 8px 10px;
+      font-size: 11px;
+      color: rgba(249,250,251,0.78);
+    }
+    .figure-task {
+      text-align: center;
+      display: grid;
+      gap: 12px;
+      margin-top: 56px;
+    }
+    .figure-card {
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 18px 18px 20px;
+      width: 220px;
+      justify-self: center;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.35);
+      gap: 10px;
+    }
+    .shape-wrapper {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      display: grid;
+      place-items: center;
+    }
+    .shape {
+      width: 140px;
+      height: 140px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      color: #e5e7eb;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .shape-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #e5e7eb;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+      white-space: nowrap;
+      overflow: visible;
+      pointer-events: none;
+    }
+    .shape.square { background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 6px; }
+    .shape.circle { background: linear-gradient(135deg, #10b981, #22c55e); border-radius: 50%; }
+    .shape.triangle { background: linear-gradient(135deg, #f97316, #f59e0b); clip-path: polygon(50% 5%, 95% 95%, 5% 95%); }
+    .shape.pentagon { background: linear-gradient(135deg, #06b6d4, #3b82f6); clip-path: polygon(50% 5%, 95% 38%, 77% 95%, 23% 95%, 5% 38%); }
+    .shape.hexagon { background: linear-gradient(135deg, #ec4899, #8b5cf6); clip-path: polygon(25% 5%, 75% 5%, 95% 50%, 75% 95%, 25% 95%, 5% 50%); }
+    .shape.rhombus { background: linear-gradient(135deg, #f472b6, #f97316); clip-path: polygon(50% 5%, 95% 50%, 50% 95%, 5% 50%); }
+    .figure-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      width: min(520px, 100%);
+      justify-self: center;
+    }
+    .figure-options button {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      box-shadow: none;
+      font-weight: 700;
+    }
+    .figure-note { color: var(--muted); font-size: 13px; }
+    .stroop-task {
+      text-align: center;
+      display: grid;
+      gap: 16px;
+      margin-top: 56px;
+    }
+    .stroop-word {
+      padding: 20px 28px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--stroke);
+      display: inline-block;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+    }
+    .stroop-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      width: min(520px, 100%);
+      justify-self: center;
+    }
+    .stroop-options button {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      box-shadow: none;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.35);
+    }
+    .flanker-task {
+      text-align: center;
+      display: grid;
+      gap: 16px;
+      margin-top: 56px;
+    }
+    .flanker-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      letter-spacing: 6px;
+      color: #9ca3af;
+    }
+    .flanker-row .center { color: #7c5cff; font-weight: 800; }
+    .flanker-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      width: min(480px, 100%);
+      justify-self: center;
+    }
+    .flanker-options button {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      box-shadow: none;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 15px;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      z-index: 20;
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      width: min(520px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+      overflow: hidden;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--stroke);
+      }
+    .modal__title { margin: 0; font-size: 1rem; letter-spacing: 0.04em; }
+    .modal__close {
+      border: 1px solid var(--stroke);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 100px; /* <--- Минимальная ширина, меньше которой кнопка не будет */
+      max-width: 200px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 960px) {
+      .shell { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="logo">
+        <span>MOODIX</span> · Тренажер
+      </div>
+      <nav>
+        <a href="index.html" class="page-link">На главную</a>
+      </nav>
+    </header>
+
+    <section class="panel">
+      <div class="modes">
+        <div class="hero">
+          <h1>Тренировка ингибиторного контроля</h1>
+          <p>Выберите режим — мы настроим стимулы, фокус и паузу за вас. Каждая сессия: 10 проб.</p>
+        </div>
+        <div class="mode-sections" id="modeList"></div>
+      </div>
+    </section>
+
+    <section class="panel stage" id="stagePanel" hidden>
+      <div class="stage-actions">
+        <button id="startBtn">Запустить</button>
+        <button class="secondary" id="resetBtn">Сброс</button>
+      </div>
+      <div class="instructions" id="instructionText"></div>
+
+      <div class="arena" id="arena">
+        <div class="progress" id="trialProgress" hidden>
+          <div class="progress__label" id="trialProgressLabel">0 / 0</div>
+          <div class="progress__track">
+            <div class="progress__fill" id="trialProgressFill"></div>
+          </div>
+        </div>
+        <div class="stimulus" id="stimulus">
+          <div class="visual" id="visualStim">—</div>
+          <div class="tag" id="tag">Ожидание старта</div>
+        </div>
+        <div class="message" id="message">Нажмите «Старт сессии». Ответ — кнопками «Позитив» / «Негатив».</div>
+        <div class="figure-task" id="figureTask" hidden>
+          <div class="figure-question">Какая фигура изображена?</div>
+          <div class="figure-card">
+            <div class="shape-wrapper">
+              <div class="shape" id="figureShape"></div>
+              <div class="shape-text" id="figureText"></div>
+            </div>
+          </div>
+          <div class="figure-note">Игнорируйте текст внутри</div>
+          <div class="figure-options" id="figureOptions"></div>
+        </div>
+        <div class="stroop-task" id="stroopTask" hidden>
+          <div class="figure-question">Каким цветом написано слово?</div>
+          <div class="stroop-word" id="stroopWord">текст</div>
+          <div class="stroop-options" id="stroopOptions"></div>
+        </div>
+        <div class="flanker-task" id="flankerTask" hidden>
+          <div class="figure-question">Куда направлена центральная стрелка?</div>
+          <div class="flanker-row" id="flankerRow"></div>
+          <div class="flanker-options">
+            <button id="flankerLeft">← Влево</button>
+            <button id="flankerRight">Вправо →</button>
+          </div>
+        </div>
+        <div class="response-bar">
+          <button id="positiveBtn">Позитив</button>
+          <button id="negativeBtn">Негатив</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" id="statsPanel" hidden>
+      <div class="stats__head">
+        <h3 class="stats__title">Статистика тренировки</h3>
+        <span class="badge" id="statsMode">Режим: —</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card stat-card--accent">
+          <div class="stat-card__label">Точность</div>
+          <div class="stat-card__value" id="statsAccuracy">0%</div>
+          <div class="stat-card__note" id="statsAccuracyNote">0 из 0</div>
+        </div>
+        <div class="stat-card stat-card--cool">
+          <div class="stat-card__label">Среднее время</div>
+          <div class="stat-card__value" id="statsRt">–</div>
+          <div class="stat-card__note">на ответ</div>
+        </div>
+        <div class="stat-card stat-card--warm">
+          <div class="stat-card__label">Последние 10</div>
+          <div class="stat-card__value" id="statsLast10">–</div>
+          <div class="stat-card__note" id="statsLast10Note">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Уровень</div>
+          <div class="stat-card__value" id="statsLevel">—</div>
+          <div class="stat-card__note" id="statsLevelNote">Продолжайте!</div>
+        </div>
+      </div>
+      <div class="trend">
+        <div class="trend__head">
+          <p class="trend__title">Динамика результатов</p>
+          <span class="trend__note">средний отклик по блокам</span>
+        </div>
+        <div class="trend__bars" id="trendBars"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function() {
+      const body = document.body;
+      requestAnimationFrame(() => body.classList.add('loaded'));
+      const links = document.querySelectorAll('.page-link');
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (!href || href.startsWith('#')) return;
+          e.preventDefault();
+          body.classList.add('fade-out');
+          setTimeout(() => { window.location.href = href; }, 250);
+        });
+      });
+    })();
+
+    const visualLibraries = {
+      faces: [
+        { label: "🙂 Радость", render: "🙂", emotion: "positive" },
+        { label: "😀 Восторг", render: "😀", emotion: "positive" },
+        { label: "😡 Злость", render: "😡", emotion: "negative" },
+        { label: "😢 Грусть", render: "😢", emotion: "negative" }
+      ],
+      words: [
+        { label: "РАДОСТЬ", render: "РАДОСТЬ", emotion: "positive" },
+        { label: "СПОКОЙСТВИЕ", render: "СПОКОЙСТВИЕ", emotion: "positive" },
+        { label: "ГНЕВ", render: "ГНЕВ", emotion: "negative" },
+        { label: "СТРАХ", render: "СТРАХ", emotion: "negative" }
+      ]
+    };
+
+    const figureShapes = [
+      { name: "Квадрат", className: "square" },
+      { name: "Круг", className: "circle" },
+      { name: "Треугольник", className: "triangle" },
+      { name: "Пятиугольник", className: "pentagon" },
+      { name: "Шестиугольник", className: "hexagon" },
+      { name: "Ромб", className: "rhombus" }
+    ];
+
+    const audioLibraries = {
+      voiceWords: [
+        { text: "радость", emotion: "positive" },
+        { text: "спокойствие", emotion: "positive" },
+        { text: "гнев", emotion: "negative" },
+        { text: "страх", emotion: "negative" }
+      ],
+      tones: [
+        { text: "яркий тон", emotion: "positive", freq: 720 },
+        { text: "светлый тон", emotion: "positive", freq: 640 },
+        { text: "низкий тон", emotion: "negative", freq: 240 },
+        { text: "приглушенный", emotion: "negative", freq: 180 }
+      ]
+    };
+
+    const categories = [
+      { id: "distract", title: "Отвлекающие упражнения", desc: "Игнорируйте нерелевантные стимулы", icon: "↺", color: "linear-gradient(135deg,#22d3ee,#a855f7)" }
+    ];
+
+    const modes = [
+      {
+        id: "figures-names",
+        title: "Фигуры и названия",
+        subtitle: "Тренировка на игнорирование отвлекающей информации",
+        category: "distract",
+        icon: "⬚",
+        color: "linear-gradient(135deg,#0ea5e9,#0ea5e9)",
+        steps: [
+          "Вам показывается <strong>фигура и название другой фигуры</strong> рядом",
+          "Выберите <strong>название той фигуры, которая нарисована</strong>",
+          "Игнорируйте отвлекающий текст",
+          "Чем быстрее и точнее — тем больше очков"
+        ],
+        tasks: 10,
+        duration: "5–7 минут",
+        difficulty: "Начальный",
+        visualType: "words",
+        audioType: "voiceWords",
+        targetChannel: "visual",
+        pause: 1800
+      },
+      {
+        id: "stroop",
+        title: "Тест Струпа",
+        subtitle: "Классическое упражнение на ингибиторный контроль",
+        category: "distract",
+        icon: "🎨",
+        color: "linear-gradient(135deg,#c026d3,#fb7185)",
+        steps: [
+          "Показывается слово, написанное <strong>определённым цветом</strong>",
+          "Выберите <strong>цвет, которым написано слово</strong>, а не его значение",
+          "Например: слово <strong>КРАСНЫЙ</strong> — правильный ответ «Синий»"
+        ],
+        tasks: 10,
+        duration: "5–7 минут",
+        difficulty: "Средний",
+        visualType: "words",
+        audioType: "voiceWords",
+        targetChannel: "visual",
+        pause: 1700
+      },
+      {
+        id: "flanker",
+        title: "Фланкерная задача",
+        subtitle: "Определите направление центральной стрелки",
+        category: "distract",
+        icon: "⇄",
+        color: "linear-gradient(135deg,#3b82f6,#6366f1)",
+        steps: [
+          "На экране появляется ряд из 5 стрелок",
+          "Определите направление <strong>центральной стрелки</strong>",
+          "Игнорируйте боковые стрелки — они отвлекают",
+          "Используйте стрелки на клавиатуре или кнопки"
+        ],
+        tasks: 10,
+        duration: "5–7 минут",
+        difficulty: "Средний",
+        visualType: "faces",
+        audioType: "tones",
+        targetChannel: "visual",
+        pause: 1700
+      },
+      {
+        id: "emoji",
+        title: "Эмодзи",
+        subtitle: "Определяйте эмоцию смайлика, игнорируя звук",
+        category: "distract",
+        icon: "😊",
+        color: "linear-gradient(135deg,#22d3ee,#a855f7)",
+        steps: [
+          "Появляется эмодзи с эмоцией",
+          "Слышите слово, которое может отвлекать",
+          "Жмите «Позитив» или «Негатив» по эмоции смайла",
+          "Быстрая и точная реакция — больше очков"
+        ],
+        tasks: 20,
+        duration: "3–4 минуты",
+        difficulty: "Начальный",
+        visualType: "faces",
+        audioType: "voiceWords",
+        targetChannel: "visual",
+        pause: 1700
+      },
+      {
+        id: "words-distract",
+        title: "Слова",
+        subtitle: "Определяйте настроение слова, игнорируя звук",
+        category: "distract",
+        icon: "📝",
+        color: "linear-gradient(135deg,#f59e0b,#ef4444)",
+        steps: [
+          "Появляется слово с эмоциональным оттенком",
+          "Слышите другое слово, оно может мешать",
+          "Жмите «Позитив» или «Негатив» по значению написанного слова",
+          "Быстрая точность — лучший результат"
+        ],
+        tasks: 20,
+        duration: "3–4 минуты",
+        difficulty: "Средний",
+        visualType: "words",
+        audioType: "voiceWords",
+        targetChannel: "visual",
+        pause: 1700
+      }
+    ];
+
+    const state = {
+      running: false,
+      trials: [],
+      currentIndex: 0,
+      results: [],
+      targetChannel: "visual",
+      pause: 2000,
+      activeModeId: null,
+      lastModeId: null
+    };
+
+    const el = {
+      modeList: document.getElementById("modeList"),
+      instructionText: document.getElementById("instructionText"),
+      stimulusBox: document.getElementById("stimulus"),
+      visualStim: document.getElementById("visualStim"),
+      tag: document.getElementById("tag"),
+      message: document.getElementById("message"),
+      startBtn: document.getElementById("startBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      positiveBtn: document.getElementById("positiveBtn"),
+      negativeBtn: document.getElementById("negativeBtn"),
+      responseBar: document.querySelector(".response-bar"),
+      figureTask: document.getElementById("figureTask"),
+      figureShape: document.getElementById("figureShape"),
+      figureText: document.getElementById("figureText"),
+      figureOptions: document.getElementById("figureOptions"),
+      stroopTask: document.getElementById("stroopTask"),
+      stroopWord: document.getElementById("stroopWord"),
+      stroopOptions: document.getElementById("stroopOptions"),
+      flankerTask: document.getElementById("flankerTask"),
+      flankerRow: document.getElementById("flankerRow"),
+      flankerLeft: document.getElementById("flankerLeft"),
+      flankerRight: document.getElementById("flankerRight"),
+      trialProgress: document.getElementById("trialProgress"),
+      trialProgressLabel: document.getElementById("trialProgressLabel"),
+      trialProgressFill: document.getElementById("trialProgressFill"),
+      statsPanel: document.getElementById("statsPanel"),
+      statsMode: document.getElementById("statsMode"),
+      statsAccuracy: document.getElementById("statsAccuracy"),
+      statsAccuracyNote: document.getElementById("statsAccuracyNote"),
+      statsRt: document.getElementById("statsRt"),
+      statsLast10: document.getElementById("statsLast10"),
+      statsLast10Note: document.getElementById("statsLast10Note"),
+      statsLevel: document.getElementById("statsLevel"),
+      statsLevelNote: document.getElementById("statsLevelNote"),
+      trendBars: document.getElementById("trendBars"),
+      arena: document.getElementById("arena"),
+      stagePanel: document.getElementById("stagePanel")
+    };
+
+    let responseWindow = null;
+    let timers = { trial: null, response: null, gap: null };
+
+    function clearTimers() {
+      if (timers.trial) clearTimeout(timers.trial);
+      if (timers.response) clearTimeout(timers.response);
+      if (timers.gap) clearTimeout(timers.gap);
+      timers = { trial: null, response: null, gap: null };
+    }
+
+    function calcStats(results) {
+      const total = results.length;
+      const correct = results.filter(r => r.correct).length;
+      const accuracy = total ? Math.round((correct / total) * 100) : 0;
+      const rts = results.filter(r => r.rt !== null).map(r => r.rt);
+      const meanRt = rts.length ? Math.round(rts.reduce((a,b)=>a+b,0) / rts.length) : null;
+      const lastChunk = results.slice(-10);
+      const lastAcc = lastChunk.length ? Math.round((lastChunk.filter(r => r.correct).length / lastChunk.length) * 100) : null;
+      const level = accuracy >= 85 ? { title: "Отлично", note: "Держите темп!" } :
+                    accuracy >= 65 ? { title: "Хорошо", note: "Продолжайте!" } :
+                    { title: "Нужно подтянуть", note: "Сконцентрируйтесь" };
+      const trendBars = [];
+      const barCount = Math.min(5, Math.max(1, Math.ceil(total / 3)));
+      const chunkSize = Math.max(1, Math.ceil(total / barCount));
+      for (let i = 0; i < total; i += chunkSize) {
+        const slice = results.slice(i, i + chunkSize);
+        const rtSlice = slice.filter(r => r.rt !== null).map(r => r.rt);
+        const chunkRt = rtSlice.length ? Math.round(rtSlice.reduce((a,b)=>a+b,0) / rtSlice.length) : null;
+        trendBars.push({ rt: chunkRt, label: `${i + 1}–${Math.min(i + slice.length, total)}` });
+      }
+      return { accuracy, correct, total, meanRt, lastAcc, level, trendBars };
+    }
+
+    function formatRt(ms) {
+      return ms !== null ? `${(ms / 1000).toFixed(2)} c` : "–";
+    }
+
+    function renderStats(stats) {
+      el.statsPanel.hidden = false;
+      el.statsAccuracy.textContent = `${stats.accuracy}%`;
+      el.statsAccuracyNote.textContent = `${stats.correct} из ${stats.total}`;
+      el.statsRt.textContent = formatRt(stats.meanRt);
+      el.statsLast10.textContent = stats.lastAcc !== null ? `${stats.lastAcc}%` : "–";
+      el.statsLast10Note.textContent = stats.lastAcc !== null ? (stats.lastAcc >= stats.accuracy ? "Стабильно" : "Есть просадка") : "Недостаточно данных";
+      el.statsLevel.textContent = stats.level.title;
+      el.statsLevelNote.textContent = stats.level.note;
+
+      el.trendBars.innerHTML = "";
+      const rtValues = stats.trendBars.map(b => b.rt).filter(v => v !== null);
+      const maxRt = rtValues.length ? Math.max(...rtValues) : 0;
+      const minRt = rtValues.length ? Math.min(...rtValues) : 0;
+      const range = Math.max(1, maxRt - minRt);
+      stats.trendBars.forEach((bar, idx) => {
+        const div = document.createElement("div");
+        div.className = "trend__bar";
+        if (bar.rt === null) {
+          div.style.height = "30%";
+          div.dataset.label = "–";
+          div.title = `Блок ${idx + 1}: ${bar.label}\nНет данных`;
+        } else {
+          const norm = 1 - ((bar.rt - minRt) / range);
+          const height = 35 + norm * 55;
+          div.style.height = `${height}%`;
+          div.dataset.label = formatRt(bar.rt);
+          div.title = `Блок ${idx + 1}: ${bar.label}\nСредняя задержка: ${formatRt(bar.rt)}`;
+        }
+        el.trendBars.appendChild(div);
+      });
+
+      const mode = getModeById(state.lastModeId);
+      if (!mode) {
+        el.statsMode.textContent = "Режим: —";
+        return;
+      }
+      el.statsMode.textContent = `Режим: ${mode.title} · ${mode.subtitle}`;
+    }
+
+    function resetStats() {
+      el.statsPanel.hidden = true;
+      el.trendBars.innerHTML = "";
+    }
+
+    const visualLabels = { faces: "Символы", words: "Слова" };
+    const audioLabels = { voiceWords: "Голос", tones: "Тоны" };
+    const stroopColors = [
+      { name: "Красный", color: "#ef4444" },
+      { name: "Синий", color: "#3b82f6" },
+      { name: "Жёлтый", color: "#eab308" },
+      { name: "Зелёный", color: "#22c55e" }
+    ];
+
+    function arrow(direction, isCenter = false) {
+      return `<span class="${isCenter ? "center" : ""}">${direction === "left" ? "←" : "→"}</span>`;
+    }
+
+    function getModeById(id) {
+      if (!id) return null;
+      return modes.find(m => m.id === id) || null;
+    }
+
+    function getActiveMode() {
+      return getModeById(state.activeModeId);
+    }
+
+    function renderModeCards() {
+      el.modeList.innerHTML = "";
+      categories.forEach(cat => {
+        const section = document.createElement("div");
+        section.className = "mode-section";
+        const head = document.createElement("div");
+        head.className = "mode-section__head";
+        head.innerHTML = `
+          <div class="mode-section__icon" style="background:${cat.color};">${cat.icon}</div>
+          <div>
+            <h3 class="mode-section__title">${cat.title}</h3>
+            <p class="mode-section__desc">${cat.desc}</p>
+          </div>
+        `;
+        const grid = document.createElement("div");
+        grid.className = "mode-grid";
+        modes.filter(m => m.category === cat.id).forEach(mode => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `mode-card${state.activeModeId && mode.id === state.activeModeId ? " active" : ""}`;
+          btn.dataset.mode = mode.id;
+          btn.innerHTML = `
+            <div class="mode-card__icon" style="background:${mode.color};">${mode.icon}</div>
+            <h4 class="mode-card__title">${mode.title}</h4>
+            <p class="mode-card__desc">${mode.subtitle}</p>
+            <div class="mode-card__meta">
+              <span class="pill-badge">${mode.difficulty}</span>
+              <span>${mode.duration}</span>
+            </div>
+          `;
+          btn.addEventListener("click", () => setMode(mode.id));
+          grid.appendChild(btn);
+        });
+        section.appendChild(head);
+        section.appendChild(grid);
+        el.modeList.appendChild(section);
+      });
+    }
+
+    function setMode(id) {
+      if (state.running) return;
+      const mode = getModeById(id);
+      state.activeModeId = mode.id;
+      state.targetChannel = mode.targetChannel;
+      renderModeCards();
+      updateInstruction(mode);
+      resetStats();
+      setMessage("Режим выбран. Нажмите «Запустить», чтобы начать 10 проб.", "");
+      el.stagePanel.hidden = false;
+    }
+
+    function updateInstruction(mode = getActiveMode()) {
+      if (!mode) {
+        el.instructionText.innerHTML = "Выберите режим, чтобы увидеть инструкцию. Затем нажмите «Запустить».";
+        return;
+      }
+      const pauseSec = (mode.pause / 1000).toFixed(1).replace(".0", "");
+      const steps = mode.steps.map((s, i) => `
+        <div class="step"><span class="step-num">${i + 1}</span><span>${s}</span></div>
+      `).join("");
+      el.instructionText.innerHTML = `
+        <div class="instr-header">
+          <div class="instr-icon" style="background:${mode.color};">${mode.icon}</div>
+          <div>
+            <div class="instr-title">${mode.title}</div>
+            <div class="instr-sub">${mode.subtitle}</div>
+          </div>
+        </div>
+        <div class="step-list">${steps}</div>
+        <div class="instr-meta">Заданий: ${mode.tasks} • ${mode.duration} • Пауза между стимулами ~${pauseSec} с</div>
+      `;
+    }
+
+    function choice(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function generateTrials(count, dissonancePercent, visualType, audioType) {
+      const visualLib = visualLibraries[visualType];
+      const audioLib = audioLibraries[audioType];
+      const incongruentCount = Math.round((count * dissonancePercent) / 100);
+      const flags = Array.from({ length: count }, (_, i) => i < incongruentCount);
+      shuffle(flags);
+      const trials = [];
+      for (let i = 0; i < count; i++) {
+        const visual = choice(visualLib);
+        const isIncongruent = flags[i];
+        let auditory;
+        if (isIncongruent) {
+          const opposite = visual.emotion === "positive" ? "negative" : "positive";
+          const filtered = audioLib.filter(a => a.emotion === opposite);
+          auditory = choice(filtered);
+        } else {
+          const filtered = audioLib.filter(a => a.emotion === visual.emotion);
+          auditory = choice(filtered);
+        }
+        trials.push({ visual, auditory, isIncongruent });
+      }
+      return trials;
+    }
+
+    function generateFigureTrials(count) {
+      const trials = [];
+      for (let i = 0; i < count; i++) {
+        const shape = choice(figureShapes);
+        let distractor = choice(figureShapes.filter(s => s.name !== shape.name));
+        const optionsPool = figureShapes.filter(s => s.name !== shape.name);
+        shuffle(optionsPool);
+        const options = [shape.name, optionsPool[0].name, optionsPool[1].name, optionsPool[2].name];
+        shuffle(options);
+        trials.push({ shape, distractor, options });
+      }
+      return trials;
+    }
+
+    function generateStroopTrials(count) {
+      const trials = [];
+      for (let i = 0; i < count; i++) {
+        const word = choice(stroopColors);
+        const colorsPool = stroopColors.filter(c => c.name !== word.name);
+        const inkColor = Math.random() < 0.7 ? choice(colorsPool) : word; // чаще неконгруэнтно
+        const options = stroopColors.map(c => c.name);
+        shuffle(options);
+        trials.push({ word, inkColor, options });
+      }
+      return trials;
+    }
+
+    function generateFlankerTrials(count) {
+      const trials = [];
+      for (let i = 0; i < count; i++) {
+        const centerDir = Math.random() > 0.5 ? "left" : "right";
+        const congruent = Math.random() > 0.5;
+        const flankDir = congruent ? centerDir : (centerDir === "left" ? "right" : "left");
+        const arrows = [flankDir, flankDir, centerDir, flankDir, flankDir];
+        trials.push({ centerDir, arrows, congruent });
+      }
+      return trials;
+    }
+
+    function presentAuditory(stimulus, type) {
+      if (type === "voiceWords") {
+        const utter = new SpeechSynthesisUtterance(stimulus.text);
+        utter.lang = "ru-RU";
+        utter.rate = 0.95;
+        speechSynthesis.speak(utter);
+      } else {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = stimulus.freq;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.45);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      }
+    }
+
+    function setMessage(text, type = "") {
+      if (!text || !text.trim()) {
+        el.message.hidden = true;
+        el.message.className = "message";
+        el.message.textContent = "";
+        return;
+      }
+      el.message.hidden = false;
+      el.message.textContent = text;
+      el.message.className = `message ${type}`;
+    }
+
+    function resetArena() {
+      el.visualStim.textContent = "—";
+      el.tag.textContent = "Ожидание старта";
+      el.arena.style.boxShadow = "none";
+      el.trialProgress.hidden = true;
+      el.trialProgress.classList.remove("progress-bottom", "progress-above-response");
+      el.trialProgressFill.style.width = "0%";
+      el.trialProgressLabel.textContent = "0 / 0";
+    }
+
+    function updateProgress(current, total) {
+      if (!total) {
+        el.trialProgress.hidden = true;
+        return;
+      }
+      const modeId = state.lastModeId;
+      el.trialProgress.classList.remove("progress-bottom", "progress-above-response");
+      if (modeId === "emoji" || modeId === "words-distract") {
+        el.trialProgress.classList.add("progress-above-response");
+      } else {
+        el.trialProgress.classList.add("progress-bottom");
+      }
+      el.trialProgress.hidden = false;
+      el.trialProgressLabel.textContent = `${current} / ${total}`;
+      const pct = Math.min(100, Math.max(0, (current / total) * 100));
+      el.trialProgressFill.style.width = `${pct}%`;
+    }
+
+    function enableResponse(enabled) {
+      el.positiveBtn.disabled = !enabled;
+      el.negativeBtn.disabled = !enabled;
+      const opacity = enabled ? 1 : 0.65;
+      el.positiveBtn.style.opacity = opacity;
+      el.negativeBtn.style.opacity = opacity;
+    }
+
+    const DEFAULT_TRIALS = 10;
+    const FIGURE_TRIALS = 10;
+    const STROOP_TRIALS = 10;
+    const FLANKER_TRIALS = 10;
+
+    function startSession() {
+      if (state.running) return;
+      const mode = getActiveMode();
+      if (!mode) {
+        setMessage("Выберите режим, чтобы запустить сессию.", "");
+        return;
+      }
+      clearTimers();
+      state.lastModeId = mode.id;
+      let trialsCount = DEFAULT_TRIALS;
+      if (mode.id === "figures-names") trialsCount = FIGURE_TRIALS;
+      if (mode.id === "stroop") trialsCount = STROOP_TRIALS;
+      if (mode.id === "flanker") trialsCount = FLANKER_TRIALS;
+      state.trials = mode.id === "figures-names"
+        ? generateFigureTrials(trialsCount)
+        : mode.id === "stroop"
+          ? generateStroopTrials(trialsCount)
+          : mode.id === "flanker"
+            ? generateFlankerTrials(trialsCount)
+            : generateTrials(trialsCount, 100, mode.visualType, mode.audioType);
+      state.results = [];
+      state.currentIndex = 0;
+      state.running = true;
+      state.targetChannel = mode.targetChannel;
+      state.pause = mode.pause;
+      document.body.classList.add("test-running");
+      resetStats();
+      setMessage("Сессия запущена. Ждите стимул и отвечайте, выбирая правильный вариант.", "");
+      enableResponse(false);
+      runNextTrial();
+    }
+
+    function finishSession() {
+      state.running = false;
+      responseWindow = null;
+      clearTimers();
+      enableResponse(false);
+      resetArena();
+      hideFigureStimulus();
+      hideStroopStimulus();
+      hideFlankerStimulus();
+      document.body.classList.remove("test-running");
+      const correct = state.results.filter(r => r.correct).length;
+      const total = state.results.length;
+      const accuracy = total ? Math.round((correct / total) * 100) : 0;
+      const rts = state.results.filter(r => r.rt !== null).map(r => r.rt);
+      const meanRt = rts.length ? Math.round(rts.reduce((a,b)=>a+b,0)/rts.length) : "–";
+      setMessage(`Сессия завершена. Точность: ${accuracy}%. Средний RT: ${meanRt} мс.`, "success");
+      renderStats(calcStats(state.results));
+    }
+
+    function runNextTrial() {
+      if (!state.running) return;
+      clearTimers();
+      if (state.currentIndex > 0) {
+        setMessage("", "");
+      }
+      if (state.currentIndex >= state.trials.length) {
+        finishSession();
+        return;
+      }
+      const mode = getModeById(state.lastModeId);
+      if (mode && mode.id === "figures-names") {
+        runFigureTrial();
+        return;
+      }
+      if (mode && mode.id === "stroop") {
+        runStroopTrial();
+        return;
+      }
+      if (mode && mode.id === "flanker") {
+        runFlankerTrial();
+        return;
+      }
+      const trial = state.trials[state.currentIndex];
+      state.currentIndex += 1;
+      updateProgress(state.currentIndex, state.trials.length);
+
+      el.visualStim.textContent = "+";
+      el.tag.textContent = "Фиксация";
+      enableResponse(false);
+
+      timers.trial = setTimeout(() => {
+        if (!state.running) return;
+        el.visualStim.textContent = trial.visual.render;
+        el.tag.textContent = `Визуально: ${trial.visual.label} • Слухово: ${trial.auditory.text} ${trial.isIncongruent ? "(неконгруэнт)" : "(конгруэнт)"}`;
+        const mode = getModeById(state.lastModeId);
+        presentAuditory(trial.auditory, mode.audioType);
+        const startTime = performance.now();
+        let answered = false;
+        enableResponse(true);
+
+        responseWindow = (resp) => {
+          if (answered) return;
+          answered = true;
+          if (timers.response) {
+            clearTimeout(timers.response);
+            timers.response = null;
+          }
+          enableResponse(false);
+          const rt = Math.round(performance.now() - startTime);
+          const correctValence = state.targetChannel === "visual" ? trial.visual.emotion : trial.auditory.emotion;
+          const correct = resp === correctValence;
+          state.results.push({ correct, rt, trial });
+          setMessage(correct ? `Верно (${rt} мс)` : "Неверно", correct ? "success" : "error");
+          timers.gap = setTimeout(runNextTrial, state.pause);
+        };
+
+        timers.response = setTimeout(() => {
+          timers.response = null;
+          if (!state.running || answered) return;
+          if (!answered) {
+            answered = true;
+            enableResponse(false);
+            state.results.push({ correct: false, rt: null, trial });
+            setMessage("Пропуск ответа", "error");
+            timers.gap = setTimeout(runNextTrial, state.pause);
+          }
+        }, 3000);
+      }, 450);
+    }
+
+    function renderFigureStimulus(trial) {
+      el.figureTask.hidden = false;
+      el.stroopTask.hidden = true;
+      el.flankerTask.hidden = true;
+      el.responseBar.style.display = "none";
+      el.stimulusBox.style.display = "none";
+      el.figureShape.className = `shape ${trial.shape.className}`;
+      el.figureText.textContent = trial.distractor.name;
+      el.figureOptions.innerHTML = "";
+      trial.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.addEventListener("click", () => responseWindow && responseWindow(option));
+        el.figureOptions.appendChild(btn);
+      });
+    }
+
+    function hideFigureStimulus() {
+      el.figureTask.hidden = true;
+      el.responseBar.style.display = "";
+      el.stimulusBox.style.display = "";
+      el.figureOptions.innerHTML = "";
+      el.figureText.textContent = "";
+    }
+
+    function renderStroopStimulus(trial) {
+      el.stroopTask.hidden = false;
+      el.figureTask.hidden = true;
+      el.flankerTask.hidden = true;
+      el.responseBar.style.display = "none";
+      el.stimulusBox.style.display = "none";
+      el.stroopWord.textContent = trial.word.name;
+      el.stroopWord.style.color = trial.inkColor.color;
+      el.stroopOptions.innerHTML = "";
+      trial.options.forEach(opt => {
+        const colorObj = stroopColors.find(c => c.name === opt);
+        const btn = document.createElement("button");
+        btn.innerHTML = `<span class="color-dot" style="background:${colorObj ? colorObj.color : '#fff'}"></span>${opt}`;
+        btn.addEventListener("click", () => responseWindow && responseWindow(opt));
+        el.stroopOptions.appendChild(btn);
+      });
+    }
+
+    function hideStroopStimulus() {
+      el.stroopTask.hidden = true;
+      el.responseBar.style.display = "";
+      el.stimulusBox.style.display = "";
+      el.stroopOptions.innerHTML = "";
+      el.stroopWord.textContent = "";
+      el.stroopWord.style.color = "";
+    }
+
+    function renderFlankerStimulus(trial) {
+      el.flankerTask.hidden = false;
+      el.figureTask.hidden = true;
+      el.stroopTask.hidden = true;
+      el.responseBar.style.display = "none";
+      el.stimulusBox.style.display = "none";
+      el.flankerRow.innerHTML = trial.arrows.map((dir, idx) => arrow(dir, idx === 2)).join("");
+    }
+
+    function hideFlankerStimulus() {
+      el.flankerTask.hidden = true;
+      el.responseBar.style.display = "";
+      el.stimulusBox.style.display = "";
+      el.flankerRow.innerHTML = "";
+    }
+
+    function runFigureTrial() {
+      if (!state.running) return;
+      clearTimers();
+      setMessage("", "");
+      if (state.currentIndex >= state.trials.length) {
+        finishSession();
+        return;
+      }
+      const trial = state.trials[state.currentIndex];
+      state.currentIndex += 1;
+      updateProgress(state.currentIndex, state.trials.length);
+      const startTime = performance.now();
+      let answered = false;
+
+      renderFigureStimulus(trial);
+      responseWindow = (resp) => {
+        if (answered) return;
+        answered = true;
+        const rt = Math.round(performance.now() - startTime);
+        const correct = resp === trial.shape.name;
+        state.results.push({ correct, rt, trial });
+        setMessage(correct ? `Верно (${rt} мс)` : "Неверно", correct ? "success" : "error");
+        timers.gap = setTimeout(runFigureTrial, state.pause);
+      };
+
+      timers.response = setTimeout(() => {
+        timers.response = null;
+        if (!state.running || answered) return;
+        answered = true;
+        state.results.push({ correct: false, rt: null, trial });
+        setMessage("Пропуск ответа", "error");
+        timers.gap = setTimeout(runFigureTrial, state.pause);
+      }, 4000);
+    }
+
+    function runStroopTrial() {
+      if (!state.running) return;
+      clearTimers();
+      setMessage("", "");
+      if (state.currentIndex >= state.trials.length) {
+        finishSession();
+        return;
+      }
+      const trial = state.trials[state.currentIndex];
+      state.currentIndex += 1;
+      updateProgress(state.currentIndex, state.trials.length);
+      const startTime = performance.now();
+      let answered = false;
+
+      renderStroopStimulus(trial);
+      responseWindow = (resp) => {
+        if (answered) return;
+        answered = true;
+        const rt = Math.round(performance.now() - startTime);
+        const correct = resp === trial.inkColor.name;
+        state.results.push({ correct, rt, trial });
+        setMessage(correct ? `Верно (${rt} мс)` : "Неверно", correct ? "success" : "error");
+        timers.gap = setTimeout(runStroopTrial, state.pause);
+      };
+
+      timers.response = setTimeout(() => {
+        timers.response = null;
+        if (!state.running || answered) return;
+        answered = true;
+        state.results.push({ correct: false, rt: null, trial });
+        setMessage("Пропуск ответа", "error");
+        timers.gap = setTimeout(runStroopTrial, state.pause);
+      }, 4000);
+    }
+
+    function runFlankerTrial() {
+      if (!state.running) return;
+      clearTimers();
+      setMessage("", "");
+      if (state.currentIndex >= state.trials.length) {
+        finishSession();
+        return;
+      }
+      const trial = state.trials[state.currentIndex];
+      state.currentIndex += 1;
+      updateProgress(state.currentIndex, state.trials.length);
+      const startTime = performance.now();
+      let answered = false;
+
+      renderFlankerStimulus(trial);
+      responseWindow = (resp) => {
+        if (answered) return;
+        answered = true;
+        const rt = Math.round(performance.now() - startTime);
+        const correct = resp === trial.centerDir;
+        state.results.push({ correct, rt, trial });
+        setMessage(correct ? `Верно (${rt} мс)` : "Неверно", correct ? "success" : "error");
+        timers.gap = setTimeout(runFlankerTrial, state.pause);
+      };
+
+      timers.response = setTimeout(() => {
+        timers.response = null;
+        if (!state.running || answered) return;
+        answered = true;
+        state.results.push({ correct: false, rt: null, trial });
+        setMessage("Пропуск ответа", "error");
+        timers.gap = setTimeout(runFlankerTrial, state.pause);
+      }, 4000);
+    }
+
+    function resetAll() {
+      state.running = false;
+      responseWindow = null;
+      state.trials = [];
+      state.results = [];
+      state.currentIndex = 0;
+      const mode = getActiveMode();
+      if (mode) {
+        state.targetChannel = mode.targetChannel;
+        state.pause = mode.pause;
+      }
+      clearTimers();
+      resetArena();
+      updateInstruction();
+      setMessage("Выберите режим и запустите сессию. Ответ — выберите правильный вариант.", "");
+      enableResponse(false);
+      document.body.classList.remove("test-running");
+      resetStats();
+      el.stagePanel.hidden = true;
+      hideFigureStimulus();
+      hideStroopStimulus();
+      hideFlankerStimulus();
+    }
+
+    el.startBtn.addEventListener("click", startSession);
+    el.resetBtn.addEventListener("click", resetAll);
+    el.positiveBtn.addEventListener("click", () => responseWindow && responseWindow("positive"));
+    el.negativeBtn.addEventListener("click", () => responseWindow && responseWindow("negative"));
+    el.flankerLeft.addEventListener("click", () => responseWindow && responseWindow("left"));
+    el.flankerRight.addEventListener("click", () => responseWindow && responseWindow("right"));
+
+    window.addEventListener("keydown", (e) => {
+      if (!state.running) return;
+      const mode = getModeById(state.lastModeId);
+      if (!mode || mode.id !== "flanker") return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        responseWindow && responseWindow("left");
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        responseWindow && responseWindow("right");
+      }
+    });
+
+    renderModeCards();
+    updateInstruction(getActiveMode());
+    resetAll();
+  </script>
+</body>
+</html>

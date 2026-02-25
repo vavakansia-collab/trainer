@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Эмоциональный диссонанс — тренажер ингибиторного контроля</title>
+  <style>
+    :root {
+      --bg-main: #050816;
+      --bg-alt: #0b1022;
+      --bg-card: rgba(15, 23, 42, 0.9);
+      --accent: #ff9ec7;
+      --accent-soft: rgba(255, 158, 199, 0.2);
+      --accent-2: #ff5f8d;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.2);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.6);
+      --shadow-card: 0 18px 45px rgba(15, 23, 42, 0.8);
+      --section-base: transparent;
+    }
+    html { scroll-behavior: smooth; }
+
+    * ,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", "Segoe UI", sans-serif;
+  /* НОВАЯ ОБЪЕДИНЕННАЯ СТРОКА BACKGROUND */
+      background:
+        radial-gradient(circle at top left, rgba(129, 140, 248, 0.26), transparent 55%), /* из hero__overlay */
+        radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.22), transparent 50%), /* из hero__overlay */
+        radial-gradient(circle at top, #111827 0, #020617 40%, #000 100%); /* оригинальный фон body */
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      opacity: 0;
+      transition: opacity 320ms ease;
+    }
+    body.loaded { opacity: 1; }
+    body.fade-out { opacity: 0; }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1120px, 100% - 32px);
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: linear-gradient(
+        to bottom,
+        rgba(15, 23, 42, 0.95),
+        rgba(15, 23, 42, 0.75),
+        transparent
+      );
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 1rem;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo__mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #f97316, #ec4899 40%, #6366f1 100%);
+      box-shadow: 0 0 32px rgba(236, 72, 153, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo__mark::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: inherit;
+      border: 1px solid rgba(248, 250, 252, 0.4);
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .header__nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .header__nav a {
+      position: relative;
+      padding-bottom: 2px;
+      cursor: pointer;
+      transition: color 0.2s ease, opacity 0.2s ease;
+      opacity: 0.85;
+    }
+
+    .header__nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 1px;
+      background: linear-gradient(to right, var(--accent), var(--accent-2));
+      transition: width 0.2s ease;
+    }
+
+    .header__nav a:hover {
+      color: var(--text-main);
+      opacity: 1;
+    }
+
+    .header__nav a:hover::after {
+      width: 100%;
+    }
+
+    /* BUTTONS */
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.1s ease,
+        box-shadow 0.18s ease, border-color 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn--primary {
+      background: linear-gradient(to right, var(--accent), var(--accent-2));
+      color: #020617;
+      box-shadow: 0 18px 40px rgba(255, 95, 141, 0.55);
+    }
+
+    .btn--primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 50px rgba(255, 95, 141, 0.7);
+    }
+
+    .btn--launch {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: #0b1022;
+      box-shadow: 0 18px 42px rgba(255, 95, 141, 0.45);
+    }
+
+    .btn--launch:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 54px rgba(255, 95, 141, 0.6);
+    }
+
+    .btn--outline {
+      border-color: rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-main);
+    }
+
+    .btn--outline:hover {
+      border-color: var(--accent);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    .btn--ghost {
+      border-color: transparent;
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--text-muted);
+    }
+
+    .btn--ghost:hover {
+      color: var(--text-main);
+      background: rgba(15, 23, 42, 0.95);
+      border-color: rgba(148, 163, 184, 0.4);
+    }
+
+    /* HERO */
+
+    .hero {
+      position: relative;
+      padding: 6.5rem 0 4.5rem;
+      overflow: hidden;
+      min-height: 88vh;
+    }
+
+    .hero__inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+      gap: 3.2rem;
+      align-items: center;
+    }
+
+    .hero__tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top left, rgba(236, 72, 153, 0.22), transparent 60%);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .hero__tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.25);
+    }
+
+    .hero__title {
+      font-size: clamp(2.4rem, 4vw, 3.1rem);
+      line-height: 1.08;
+      margin: 0 0 0.7rem;
+    }
+
+    .hero__title span {
+      background: linear-gradient(to right, #fde68a, #f97316, #ec4899);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero__subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 36rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .hero__subtitle-strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: center;
+      margin-bottom: 1.8rem;
+    }
+
+    .hero__note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .hero__note-badge {
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #e5e7eb;
+    }
+
+    .hero__stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.6rem;
+      margin-top: 0.6rem;
+    }
+
+    .stat {
+      min-width: 110px;
+    }
+
+    .stat__value {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .stat__label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .hero__card {
+      background: radial-gradient(circle at top, rgba(248, 113, 155, 0.12), transparent 55%),
+        var(--bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 1.6rem 1.7rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero__card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at -10% 10%, rgba(236, 72, 153, 0.4), transparent 55%);
+      opacity: 0.75;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero__card-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #e5e7eb;
+      margin: 0 0 0.7rem;
+    }
+
+    .hero__card-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.16rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .hero__steps {
+      list-style: none;
+      margin: 0 0 1.2rem;
+      padding: 0;
+      font-size: 0.86rem;
+      color: #e5e7eb;
+    }
+
+    .hero__steps li {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .hero__steps-number {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 250, 252, 0.6);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .hero__badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .hero__badge {
+      padding: 0.22rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    /* SECTIONS */
+
+    .section {
+      padding: 4.5rem 0;
+      position: relative;
+      z-index: 1;
+      background: transparent; /* ИЗМЕНЕНО */
+    }
+
+    .section--alt {
+      background: transparent; /* ИЗМЕНЕНО */
+    }
+
+    .section--muted {
+      background: transparent; /* ИЗМЕНЕНО */
+    }
+
+
+    .section__eyebrow {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .section__title {
+      font-size: 1.6rem;
+      margin: 0 0 0.5rem;
+    }
+
+    .section__subtitle {
+      max-width: 40rem;
+      font-size: 0.96rem;
+      color: var(--text-muted);
+      margin-bottom: 2.2rem;
+    }
+
+    /* FEATURES GRID */
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.6rem;
+    }
+
+    .feature-card {
+      background: radial-gradient(circle at top, rgba(148, 163, 184, 0.22), transparent 60%)
+          padding-box,
+        linear-gradient(to bottom right, rgba(148, 163, 184, 0.5), transparent) border-box;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      padding: 1.3rem 1.25rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .feature-card__icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 1.1rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .feature-card__title {
+      font-size: 0.98rem;
+      margin: 0 0 0.4rem;
+    }
+
+    .feature-card__text {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin: 0 0 0.5rem;
+    }
+
+    .feature-card__tag {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(209, 213, 219, 0.9);
+    }
+
+    /* TUTORIAL */
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+      gap: 2.2rem;
+      align-items: flex-start;
+    }
+
+    .steps-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.8rem;
+      align-items: flex-start;
+    }
+
+    .step__index {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.75);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      background: rgba(15, 23, 42, 0.9);
+      margin-top: 0.2rem;
+    }
+
+    .step__title {
+      font-size: 0.96rem;
+      margin: 0 0 0.25rem;
+    }
+
+    .step__text {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .how-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 1.4rem 1.5rem 1.3rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .how-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      gap: 1rem;
+    }
+
+    .how-card__title {
+      font-size: 0.96rem;
+      margin: 0;
+    }
+
+    .how-pill {
+      font-size: 0.74rem;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+    }
+
+    .how-card__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+      font-size: 0.85rem;
+    }
+
+    .how-item {
+      padding: 0.6rem 0.7rem;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .how-item__label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .how-item__value {
+      font-size: 0.82rem;
+    }
+
+    /* AUDIENCE SECTION */
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.6rem;
+    }
+
+    .aud-card {
+      padding: 1.3rem 1.25rem 1.2rem;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aud-card__label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .aud-card__title {
+      margin: 0 0 0.4rem;
+      font-size: 0.98rem;
+    }
+
+    .aud-card__text {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin: 0 0 0.5rem;
+    }
+
+    .aud-card__pill {
+      display: inline-flex;
+      font-size: 0.76rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.4);
+      border: 1px solid rgba(129, 140, 248, 0.7);
+    }
+
+    /* SCIENCE SECTION */
+
+    .science-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+      gap: 2.1rem;
+      align-items: flex-start;
+    }
+
+    .science-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.7rem;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .science-list li::before {
+      content: "●";
+      color: var(--accent);
+      font-size: 0.5rem;
+      margin-right: 0.5rem;
+    }
+
+    .science-card {
+      padding: 1.4rem 1.45rem 1.35rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.95);
+      box-shadow: var(--shadow-card);
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .science-card__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .science-card__label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(156, 163, 175, 0.9);
+    }
+
+    .science-card__value {
+      font-size: 0.86rem;
+      color: #e5e7eb;
+    }
+
+    .science-card__divider {
+      border-top: 1px dashed rgba(148, 163, 184, 0.55);
+      margin: 0.5rem 0 0.7rem;
+    }
+
+    /* FOOTER */
+
+    .footer {
+      border-top: 1px solid rgba(31, 41, 55, 1);
+      padding: 1.5rem 0 1.8rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .footer__inner {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .footer__links {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .footer__links a {
+      opacity: 0.8;
+    }
+
+    .footer__links a:hover {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .hero__inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2.4rem;
+      }
+
+      .hero {
+        padding-top: 5.5rem;
+        min-height: auto;
+      }
+
+      .hero__card {
+        max-width: 420px;
+        margin-inline: auto;
+      }
+
+      .features {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .audience-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .how-grid,
+      .science-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .header__inner {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .header__nav {
+        justify-content: center;
+      }
+
+      .hero__actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero__stats {
+        gap: 1.2rem;
+      }
+
+      .features,
+      .audience-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .footer__inner {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    (function() {
+      const body = document.body;
+      requestAnimationFrame(() => body.classList.add('loaded'));
+      const links = document.querySelectorAll('.page-link');
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (!href || href.startsWith('#')) return;
+          e.preventDefault();
+          body.classList.add('fade-out');
+          setTimeout(() => { window.location.href = href; }, 250);
+        });
+      });
+    })();
+  </script>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container header__inner">
+      <div class="logo">
+        <span>MoodiX</span>
+      </div>
+      <nav class="header__nav">
+        <a href="#product">О тренажере</a>
+        <a href="#how">Как это работает</a>
+        <a href="#audience">Для кого</a>
+        <a href="#science">Научная база</a>
+        <a href="trainer.html" class="page-link">Тренажер</a>
+      </nav>
+      <a href="trainer.html" class="btn btn--outline page-link">К тренажеру</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero__overlay" aria-hidden="true"></div>
+
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <h1 class="hero__title">
+            «<span>Эмоциональный диссонанс</span>» — тренировка внимания на грани ощущений
+          </h1>
+          <p class="hero__subtitle">
+            Кросс‑модальный тренажер, который сознательно создает
+            <span class="hero__subtitle-strong">когнитивный конфликт</span> между
+            слуховым и визуальным каналами. Пользователь слышит одно, видит другое и
+            учится осознанно выбирать, на что реагировать.
+          </p>
+
+          <div class="hero__actions">
+            <a href="trainer.html" class="btn btn--launch page-link">Запустить тренажер</a>
+            <a href="#how" class="btn btn--ghost">Посмотреть сценарий сессии</a>
+          </div>
+          <div class="hero__note">
+            Тренажер для специалистов: нейропсихологи, психотерапевты, HR и EdTech
+          </div>
+
+          <div class="hero__stats">
+            <div class="stat">
+              <span class="stat__value">5 минут</span>
+              <span class="stat__label">длительность одной сессии</span>
+            </div>
+            <div class="stat">
+              <span class="stat__value">3 канала</span>
+              <span class="stat__label">зрение, слух, эмоции</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="hero__card" aria-label="Схема работы тренажера">
+          <p class="hero__card-title">Сценарий одной сессии</p>
+          <div class="hero__card-pill">Когнитивный конфликт «вижу ≠ слышу»</div>
+
+          <ul class="hero__steps">
+            <li>
+              <span class="hero__steps-number">1</span>
+              <span>На экране появляются эмоциональные слова и лица, подсвеченные яркими цветами.</span>
+            </li>
+            <li>
+              <span class="hero__steps-number">2</span>
+              <span>В наушниках звучит голос, который просит <strong>игнорировать картинку</strong> и реагировать только на звук — или наоборот.</span>
+            </li>
+            <li>
+              <span class="hero__steps-number">3</span>
+              <span>Участник должен быстро нажать правильную клавишу, подавляя автоматическую реакцию на более яркий канал.</span>
+            </li>
+            <li>
+              <span class="hero__steps-number">4</span>
+              <span>Система фиксирует скорость, точность и уровень «эмоционального срыва» при усложнении стимулов.</span>
+            </li>
+          </ul>
+
+          <div class="hero__badge-row">
+            <div class="hero__badge">Метрики: RT, ошибки, эмоциональная нагрузка</div>
+            <div class="hero__badge">Параметры сложности настраиваются под клиента</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PRODUCT -->
+    <div id="trainer"></div>
+    <section class="section" id="product">
+      <div class="container">
+        <p class="section__eyebrow">О тренажере</p>
+        <h2 class="section__title">Инструмент для отработки ингибиторного контроля в условиях эмоционального шума</h2>
+        <p class="section__subtitle">
+          «Эмоциональный диссонанс» — это не игра, а управляемая среда для тренировок
+          <strong>осознанного торможения реакции</strong>, когда зрение, слух и эмоции тянут внимание в разные стороны.
+        </p>
+
+        <div class="features">
+          <article class="feature-card">
+            <div class="feature-card__icon">🎧</div>
+            <h3 class="feature-card__title">Кросс‑модальные конфликты</h3>
+            <p class="feature-card__text">
+              Слуховой канал говорит одно, визуальный показывает другое. Пользователь должен удерживать инструкцию и подавлять автоматический отклик.
+            </p>
+            <div class="feature-card__tag">Аудио + видео стимулы</div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-card__icon">🧠</div>
+            <h3 class="feature-card__title">Тренировка ингибиторного контроля</h3>
+            <p class="feature-card__text">
+              Повторяющиеся короткие сессии формируют навык «стоп‑сигнала»: замечать импульс и осознанно выбирать другую реакцию.
+            </p>
+            <div class="feature-card__tag">Структура коротких блоков</div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-card__icon">📊</div>
+            <h3 class="feature-card__title">Измеримая динамика</h3>
+            <p class="feature-card__text">
+              Время реакции, количество ошибок, чувствительность к эмоциональным стимулам — в понятных графиках до/после.
+            </p>
+            <div class="feature-card__tag">Отчеты для специалиста и клиента</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- TUTORIAL -->
+    <section class="section section--alt" id="how">
+      <div class="container">
+        <p class="section__eyebrow">Процесс</p>
+        <h2 class="section__title">Как «Эмоциональный диссонанс» создает полезный когнитивный конфликт</h2>
+        <p class="section__subtitle">
+          Мы намеренно сталкиваем слуховые и визуальные стимулы, чтобы человек учился
+          <strong>держать фокус на выбранном канале</strong>, не «залипая» на более эмоциональных раздражителях.
+        </p>
+
+        <div class="how-grid">
+          <ol class="steps-list">
+            <li class="step">
+              <div class="step__index">1</div>
+              <div>
+                <h3 class="step__title">Выбор режима сложности</h3>
+                <p class="step__text">
+                  Специалист задает уровень диссонанса: нейтральный, эмоционально окрашенный, стресс‑нагрузка.
+                  Регулируются скорость стимулов, интенсивность эмоций, длительность серии.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step__index">2</div>
+              <div>
+                <h3 class="step__title">Инструкция и пробные стимулы</h3>
+                <p class="step__text">
+                  Пользователь получает четкую задачу: «реагируй только на голос», «ориентируйся только на цвет» или
+                  «игнорируй мимику лица». Затем проходят несколько тренировочных попыток.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step__index">3</div>
+              <div>
+                <h3 class="step__title">Серии с растущей сложностью</h3>
+                <p class="step__text">
+                  Появляются конфликтующие стимулы: слово «РАДОСТЬ» на грустном лице, спокойный голос на тревожном видео и т.д.
+                  Система ускоряет темп, если пользователь справляется.
+                </p>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step__index">4</div>
+              <div>
+                <h3 class="step__title">Разбор результатов</h3>
+                <p class="step__text">
+                  После сессии специалист видит, при каких типах стимулов внимание «ломается», в каких режимах растет
+                  количество импульсивных ответов и как меняется динамика сессия к сессии.
+                </p>
+              </div>
+            </li>
+          </ol>
+
+          <aside class="how-card">
+            <div class="how-card__header">
+              <h3 class="how-card__title">Пример настройки сессии</h3>
+              <span class="how-pill">5–10 минут</span>
+            </div>
+            <div class="how-card__grid">
+              <div class="how-item">
+                <div class="how-item__label">Цель</div>
+                <div class="how-item__value">Снижение импульсивных реакций в эмоциональном конфликте</div>
+              </div>
+              <div class="how-item">
+                <div class="how-item__label">Режим</div>
+                <div class="how-item__value">Слух — приоритет, зрение — отвлекающий шум</div>
+              </div>
+              <div class="how-item">
+                <div class="how-item__label">Параметры</div>
+                <div class="how-item__value">3 блока по 60 стимулов с паузами 30–40 секунд</div>
+              </div>
+              <div class="how-item">
+                <div class="how-item__label">Метрики</div>
+                <div class="how-item__value">RT, ошибки, адаптация к повторяющимся эмоциям</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUDIENCE -->
+    <section class="section section--muted" id="audience">
+      <div class="container">
+        <p class="section__eyebrow">Для кого</p>
+        <h2 class="section__title">Где «Эмоциональный диссонанс» приносит максимум пользы</h2>
+        <p class="section__subtitle">
+          Тренажер подходит как для индивидуальной, так и для групповой работы, где важно
+          развивать устойчивость внимания и управление эмоциональными реакциями.
+        </p>
+
+        <div class="audience-grid">
+          <article class="aud-card">
+            <p class="aud-card__label">Психотерапевты и нейропсихологи</p>
+            <h3 class="aud-card__title">Работа с клиентами, у которых «залипает» внимание</h3>
+            <p class="aud-card__text">
+              Дополнительный инструмент в программе терапии при повышенной импульсивности,
+              эмоциональной реактивности, сложностях с переключением внимания.
+            </p>
+            <span class="aud-card__pill">Встраивается в сессии как упражнение</span>
+          </article>
+
+          <article class="aud-card">
+            <p class="aud-card__label">HR, корпоративное обучение</p>
+            <h3 class="aud-card__title">Профилактика эмоционального выгорания и ошибок в стрессе</h3>
+            <p class="aud-card__text">
+              Тренажер как часть программ по развитию стрессоустойчивости, управлению эмоциями,
+              принятию решений в условиях высокой нагрузки.
+            </p>
+            <span class="aud-card__pill">Форматы: workshop + тренажер</span>
+          </article>
+
+          <article class="aud-card">
+            <p class="aud-card__label">EdTech и исследователи</p>
+            <h3 class="aud-card__title">Пилоты и исследования когнитивного контроля</h3>
+            <p class="aud-card__text">
+              Возможность подключать собственные протоколы, типы стимулов и кастомные сценарии
+              для исследований внимания и ингибиторного контроля.
+            </p>
+            <span class="aud-card__pill">API для исследовательских проектов</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCIENCE -->
+    <section class="section" id="science">
+      <div class="container">
+        <p class="section__eyebrow">Научная база</p>
+        <h2 class="section__title">На чем основан «Эмоциональный диссонанс»</h2>
+        <p class="section__subtitle">
+          Архитектура тренажера опирается на классические парадигмы когнитивной психологии и современные подходы
+          к тренингу внимания и исполнительных функций.
+        </p>
+
+        <div class="science-grid">
+          <div>
+            <ul class="science-list">
+              <li>Принципы Stroop‑подобных задач: конфликт между значением стимула и его формой.</li>
+              <li>Кросс‑модальный конфликт: рассогласование между слуховым и визуальным каналами.</li>
+              <li>Тренинг ингибиторного контроля как элементы когнитивной реабилитации и развития саморегуляции.</li>
+              <li>Измерение времени реакции и ошибок как индикаторов когнитивной нагрузки и устойчивости внимания.</li>
+              <li>Постепенное усложнение (адаптивные протоколы), чтобы избегать привыкания и поддерживать оптимальный уровень вызова.</li>
+            </ul>
+          </div>
+
+          <aside class="science-card">
+            <div class="science-card__row">
+              <span class="science-card__label">Формат</span>
+              <span class="science-card__value">веб‑платформа + наушники</span>
+            </div>
+            <div class="science-card__divider"></div>
+            <p>
+              Все сессии можно запускать в браузере: достаточно ноутбука и наушников. Для специалистов
+              доступны агрегированные отчеты по клиентам и выгрузка данных для анализа.
+            </p>
+            <p>
+              Тренажер не заменяет психотерапию или медицинскую помощь, а дополняет их как
+              <strong>структурированное упражнение</strong> для тренировки внимания и управления реакцией.
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© 2025 «Эмоциональный диссонанс». Прототип проекта тренажера ингибиторного контроля.</div>
+      <div class="footer__links">
+        <a href="#top">Наверх</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CANVAS -->
+  <script>
+    (function () {
+      const canvas = document.getElementById("heroCanvas");
+      if (!canvas || !canvas.getContext) return;
+
+      const ctx = canvas.getContext("2d");
+      let width = 0;
+      let height = 0;
+      let particles = [];
+      const DPR = window.devicePixelRatio || 1;
+
+      function resize() {
+        width = canvas.clientWidth || window.innerWidth;
+        height = canvas.clientHeight || 420;
+        canvas.width = width * DPR;
+        canvas.height = height * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      }
+
+      function createParticles() {
+        const count = 26;
+        particles = [];
+        for (let i = 0; i < count; i++) {
+          const radius = 18 + Math.random() * 32;
+          particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: radius,
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: (Math.random() - 0.5) * 0.35,
+            hue: 290 + Math.random() * 60
+          });
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x - p.radius > width) p.x = -p.radius;
+          if (p.x + p.radius < 0) p.x = width + p.radius;
+          if (p.y - p.radius > height) p.y = -p.radius;
+          if (p.y + p.radius < 0) p.y = height + p.radius;
+
+          const gradient = ctx.createRadialGradient(
+            p.x,
+            p.y,
+            0,
+            p.x,
+            p.y,
+            p.radius
+          );
+          gradient.addColorStop(
+            0,
+            "hsla(" + p.hue + ", 90%, 70%, 0.9)"
+          );
+          gradient.addColorStop(
+            0.45,
+            "hsla(" + p.hue + ", 90%, 55%, 0.55)"
+          );
+          gradient.addColorStop(
+            1,
+            "hsla(" + p.hue + ", 90%, 50%, 0)"
+          );
+
+          ctx.beginPath();
+          ctx.fillStyle = gradient;
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      function init() {
+        resize();
+        createParticles();
+        draw();
+      }
+
+      window.addEventListener("resize", function () {
+        resize();
+        createParticles();
+      });
+
+      init();
+    })();
+  </script>
+</body>
+</html>
